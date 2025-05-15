@@ -6,12 +6,11 @@ use App\Http\Controllers\Api\ApiCommentReplyController;
 use App\Http\Controllers\Api\ApiLikeController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
 Route::post('/register', [ApiUserController::class, 'store']);
 Route::post('/login', [ApiUserController::class, 'login']);
 Route::get('/users', [ApiUserController::class, 'index']);
 
-// Protected routes
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', [ApiUserController::class, 'show']);
     Route::put('/users/{id}', [ApiUserController::class, 'update']);
@@ -25,10 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/like/{postId}', [ApiLikeController::class, 'getLikes']);
     // Route::get('/comments/{postId}/likes', [ApiCommentController::class, 'getLikes']);
 
-
-    // Comment replies
     Route::post('/comments/reply', [ApiCommentReplyController::class, 'storeReply']);
     Route::put('/comments/reply/{id}', [ApiCommentReplyController::class, 'updateReply']);
     Route::delete('/comments/reply/{id}', [ApiCommentReplyController::class, 'deleteReply']);
-    Route::get('/comments/{postId}/replies', [ApiCommentReplyController::class, 'getRepliesByPost']); // Optional
+    Route::get('/comments/{postId}/replies', [ApiCommentReplyController::class, 'getRepliesByPost']);
 });

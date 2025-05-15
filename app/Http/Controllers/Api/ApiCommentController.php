@@ -9,28 +9,24 @@ use App\Models\ApiComment;
 
 class ApiCommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index()
     {
         
          return ApiComment::all();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    
     public function create()
     {
-        //
+     
     }
 
    
     public function store(Request $request)
 {
     $request->validate([
-        // 'post_id' => 'required|integer',
+       
         'title' => 'required|string|max:255',
         'comment_text' => 'required|string',
         
@@ -38,8 +34,8 @@ class ApiCommentController extends Controller
 
     $comment = new ApiComment();
     $comment->post_id = $request->post_id;
-    $comment->user_id = auth()->id(); // ✅ get from token
-    $comment->author_name = auth()->user()->name; // optional if you store user_name
+    $comment->user_id = auth()->id(); // 
+    $comment->author_name = auth()->user()->name;
     $comment->title = $request->title;
     $comment->content = $request->comment_text;
     $comment->save();
@@ -49,25 +45,18 @@ class ApiCommentController extends Controller
 
 
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
          return ApiComment::findOrFail($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
    public function update(Request $request, $id)
     {
         $request->validate([

@@ -45,7 +45,6 @@ public function updateReply(Request $request, $id)
         return response()->json(['message' => 'Reply not found'], 404);
     }
 
-    // Optional: Check if the authenticated user is the owner of the reply
     if ($reply->user_id !== Auth::id()) {
         return response()->json(['message' => 'Unauthorized'], 403);
     }

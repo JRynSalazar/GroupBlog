@@ -33,7 +33,8 @@ class ApiLikeController extends Controller
         }
     }
 
-    // Get total like count for a post
+
+    
     public function getLikes($postId)
     {
         $likeCount = Like::where('post_id', $postId)->count();

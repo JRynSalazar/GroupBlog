@@ -9,18 +9,19 @@ use Illuminate\Support\Facades\Hash;
 
 class ApiUserController extends Controller
 {
+    
       public function index()
     {
         return response()->json(ApiUser::all());
     }
 
-    // GET a single user by ID
+
     public function show($id)
     {
         return response()->json(ApiUser::findOrFail($id));
     }
 
-    // POST - Create a new user
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -40,7 +41,7 @@ class ApiUserController extends Controller
         return response()->json($user, 201);
     }
 
-    // PUT - Update a user
+
     public function update(Request $request, $id)
     {
         $user = ApiUser::findOrFail($id);
@@ -48,7 +49,6 @@ class ApiUserController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'age' => 'sometimes|integer',
-            'email' => 'sometimes|email|unique:users,email,' . $id,
             'password' => 'sometimes|min:6',
             'user_type' => 'sometimes|in:admin,user',
             'bio' => 'nullable|string',
@@ -64,7 +64,6 @@ class ApiUserController extends Controller
         return response()->json($user);
     }
 
-    // DELETE - Delete a user
     public function destroy($id)
     {
         $user = ApiUser::findOrFail($id);
@@ -73,31 +72,34 @@ class ApiUserController extends Controller
         return response()->json(['message' => 'User deleted successfully']);
     }
 
+
     public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $user = ApiUser::where('email', $request->email)->first();
+        $user = ApiUser::where('email', $request->email)->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ]);
     }
 
-    $token = $user->createToken('api-token')->plainTextToken;
 
-    return response()->json([
-        'user' => $user,
-        'token' => $token,
-    ]);
-}
-public function logout(Request $request)
-{
-    $request->user()->currentAccessToken()->delete();
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
 
-    return response()->json(['message' => 'Logged out successfully']);
-}
+        return response()->json(['message' => 'Logged out successfully']);
+    }
 
 }

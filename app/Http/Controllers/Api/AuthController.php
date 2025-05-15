@@ -9,7 +9,7 @@ use App\Models\ApiUser;
 
 class AuthController extends Controller
 {
-    // Register new user
+    
     public function register(Request $request)
     {
         $request->validate([
@@ -33,7 +33,7 @@ class AuthController extends Controller
         return response()->json(['token' => $token, 'user' => $user], 201);
     }
 
-    // Login existing user
+
     public function login(Request $request)
     {
         $request->validate([
@@ -52,7 +52,7 @@ class AuthController extends Controller
         return response()->json(['token' => $token, 'user' => $user]);
     }
 
-    // Logout user (invalidate token)
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
