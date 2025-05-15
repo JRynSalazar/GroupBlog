@@ -44,36 +44,69 @@ class ApiUserController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = ApiUser::findOrFail($id);
+        try {
+            if (empty($id)) {
+                return response()->json(['error' => 'User ID is required'], 400);
+            }
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'age' => 'sometimes|integer',
+                'password' => 'sometimes|min:6',
+                'user_type' => 'sometimes|in:admin,user',
+                'bio' => 'nullable|string',
+                'profile_image' => 'nullable|string',
+            ]);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'age' => 'sometimes|integer',
-            'password' => 'sometimes|min:6',
-            'user_type' => 'sometimes|in:admin,user',
-            'bio' => 'nullable|string',
-            'profile_image' => 'nullable|string',
-        ]);
+            $user = ApiUser::findOrFail($id);
 
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+            if (isset($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($validated);
+
+            return response()->json($user, 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'details' => $e->errors()], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while updating the user',
+                'details' => $e->getMessage()
+            ], 500);
         }
-
-        $user->update($validated);
-
-        return response()->json($user);
     }
+
 
     public function destroy($id)
     {
-        $user = ApiUser::findOrFail($id);
-        $user->delete();
+        try {
+        
+            if (empty($id)) {
+                return response()->json(['error' => 'User ID is required'], 400);
+            }
 
-        return response()->json(['message' => 'User deleted successfully']);
+            $user = ApiUser::findOrFail($id);
+
+        
+            $user->delete();
+
+            return response()->json(['message' => 'User deleted successfully']);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'User not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while deleting the user',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
-    public function login(Request $request)
+
+    public function apilogin(Request $request)
     {
         $request->validate([
             'email' => 'required|email',

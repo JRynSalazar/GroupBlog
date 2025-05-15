@@ -58,7 +58,7 @@
                   @endif
 
                  
-                  <form method="POST" action="{{ route('login') }}">
+                  <form method="POST" action="{{ route('loginweb') }}">
                     @csrf
                     <p>Please login to your account</p>
 

@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    public function dashboard($name)
-    {
-        $user = Auth::user();
+public function dashboard()
+{
+    $user = Auth::user(); // get currently authenticated user
 
-        if ($user->name !== $name) {
-            abort(403, 'Unauthorized action.');
-        }
-        return view('admin.dashboard', compact('name'));
-    }
+    // no need to check $name because no URL param now
+
+    return view('admin.dashboard', ['name' => $user->name]);
+}
+
 }

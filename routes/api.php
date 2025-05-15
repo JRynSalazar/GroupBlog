@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\ApiLikeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [ApiUserController::class, 'store']);
-Route::post('/login', [ApiUserController::class, 'login']);
+Route::post('/login', [ApiUserController::class, 'apilogin']);
 Route::get('/users', [ApiUserController::class, 'index']);
 
 
@@ -29,3 +29,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/reply/{id}', [ApiCommentReplyController::class, 'deleteReply']);
     Route::get('/comments/{postId}/replies', [ApiCommentReplyController::class, 'getRepliesByPost']);
 });
+

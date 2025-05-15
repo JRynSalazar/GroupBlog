@@ -65,7 +65,7 @@ public function register(Request $request)
         return view('login');
     }
 
-    public function login(Request $request)
+    public function loginweb(Request $request)
     {
         $credentials = $request->validate([
             'email' => 'required|email',
@@ -74,7 +74,8 @@ public function register(Request $request)
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            return redirect()->route('admin.dashboard', ['name' => $user->name]);;
+            return redirect()->route('admin.dashboard');
+
         }
 
         return back()->withErrors(['email' => 'Invalid credentials']);

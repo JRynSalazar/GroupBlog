@@ -28,39 +28,72 @@ class ApiCommentReplyController extends Controller
         'data' => $reply
     ], 201);
 }
+
 public function getRepliesByPost($postId)
 {
-    $replies = PostCommentReply::where('post_id', $postId)->get();
+    try {
+        if (empty($postId)) {
+            return response()->json(['error' => 'Post ID is required'], 400);
+        }
 
-    return response()->json([
-        'message' => 'Replies fetched successfully.',
-        'data' => $replies
-    ]);
+        if (!\App\Models\ApiComment::find($postId)) {
+            return response()->json(['error' => 'Post not found'], 404);
+        }
+
+        $replies = PostCommentReply::where('post_id', $postId)->get();
+
+        return response()->json([
+            'message' => 'Replies fetched successfully.',
+            'data' => $replies
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while retrieving replies.',
+            'details' => $e->getMessage()
+        ], 500);
+    }
 }
+
 public function updateReply(Request $request, $id)
 {
-    $reply = PostCommentReply::find($id);
+    try {
+        if (empty($id)) {
+            return response()->json(['error' => 'Reply ID is required'], 400);
+        }
 
-    if (!$reply) {
-        return response()->json(['message' => 'Reply not found'], 404);
+        $reply = PostCommentReply::find($id);
+
+        if (!$reply) {
+            return response()->json(['error' => 'Reply not found'], 404);
+        }
+
+        if ($reply->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'comment' => 'required|string'
+        ]);
+
+        $reply->comment = $validated['comment'];
+        $reply->save();
+
+        return response()->json([
+            'message' => 'Reply updated successfully',
+            'data' => $reply
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['error' => 'Validation failed', 'details' => $e->errors()], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while updating the reply',
+            'details' => $e->getMessage()
+        ], 500);
     }
-
-    if ($reply->user_id !== Auth::id()) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    $request->validate([
-        'comment' => 'required|string'
-    ]);
-
-    $reply->comment = $request->comment;
-    $reply->save();
-
-    return response()->json([
-        'message' => 'Reply updated successfully',
-        'data' => $reply
-    ]);
 }
+
 
 public function deleteReply($id)
 {

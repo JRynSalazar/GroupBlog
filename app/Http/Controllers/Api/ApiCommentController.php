@@ -58,30 +58,66 @@ class ApiCommentController extends Controller
 
    
    public function update(Request $request, $id)
-    {
-        $request->validate([
+{
+    try {
+        // Check if the ID is missing or empty
+        if (empty($id)) {
+            return response()->json(['error' => 'Comment ID is required'], 400);
+        }
+
+        // Validate request data
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
             'comment_text' => 'required|string',
         ]);
 
+        // Attempt to find the comment
         $comment = ApiComment::findOrFail($id);
 
+        // Check if the authenticated user is authorized to update the comment
         if ($comment->user_id !== auth()->id()) {
-            return response()->json(['message' => 'You do not have permission to edit this comment.'], 403);
+            return response()->json(['error' => 'You do not have permission to edit this comment.'], 403);
         }
 
-        $comment->content = $request->comment_text;
-
+        // Update comment fields
+        $comment->title = $validatedData['title'];
+        $comment->content = $validatedData['comment_text'];
         $comment->save();
 
         return response()->json($comment, 200);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['error' => 'Validation failed', 'details' => $e->errors()], 422);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['error' => 'Comment not found'], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while updating the comment',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
 
 
-    public function destroy(string $id)
-    {
+
+    public function destroy(?string $id)
+{
+    try {
+       
+        if (empty($id)) {
+            return response()->json(['error' => 'Comment ID is required'], 400);
+        }
+
         $comment = ApiComment::findOrFail($id);
+
+   
         $comment->delete();
 
         return response()->json(['message' => 'Comment deleted successfully']);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['error' => 'Comment not found'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'An error occurred while deleting the comment'], 500);
     }
+}
+
 }

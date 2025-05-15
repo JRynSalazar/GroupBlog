@@ -19,7 +19,7 @@ Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'loginweb'])->name('loginweb');;
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
@@ -75,11 +75,9 @@ Route::get('/', function () {
 
 
 
-Route::get('/admin/dashboard/{name?}', [AdminController::class, 'dashboard'])
+Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
     ->name('admin.dashboard')
-    ->middleware('auth'); // Ensures only authenticated users can access
-
-
+    ->middleware('auth');
 
 
 Route::prefix('blog')->group(function () {
